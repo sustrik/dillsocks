@@ -72,6 +72,33 @@ if test "x$enable_debug" = "xyes"; then
 fi
 
 ################################################################################
+#  --enable-asan                                                               #
+################################################################################
+
+dnl Enable Address Sanitizer, if supported by gcc (4.8+) or clang.
+dnl http://clang.llvm.org/docs/AddressSanitizer.html
+dnl https://code.google.com/p/address-sanitizer/wiki/HowToBuild
+AC_ARG_ENABLE([asan],
+    [AS_HELP_STRING([--enable-asan], [Enable Address Sanitizer [default=no]])],
+    [enable_asan=$enableval], [enable_asan=no])
+  AS_IF([test "x$enable_asan" != xno], [
+    AX_CHECK_COMPILE_FLAG([-fsanitize=address],
+                          [CFLAGS="$CFLAGS -fsanitize=address"],
+                          [enable_asan=no])
+    AS_IF([test "x$enable_asan" = xno], [
+        AC_MSG_FAILURE(
+            [--enable-asan is given, but not supported on this platform.
+ Check out https://code.google.com/p/address-sanitizer/wiki/HowToBuild])])
+    dnl Keep error messages nice. Also consider:
+    dnl export ASAN_SYMBOLIZER_PATH=/usr/bin/llvm-symbolizer
+    dnl export ASAN_OPTIONS=symbolize=1
+    AX_CHECK_COMPILE_FLAG([-fno-omit-frame-pointer],
+                          [CFLAGS="$CFLAGS -fno-omit-frame-pointer"])
+    dnl AddressSanitizer symbols might not link if built with shared libs
+    AC_DISABLE_SHARED
+  ])
+
+################################################################################
 #  Feature checks.                                                             #
 ################################################################################
 
