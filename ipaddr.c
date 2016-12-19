@@ -281,6 +281,8 @@ int ipaddr_remote(ipaddr *addr, const char *name, int port, int mode,
             fdclean(fd);
             if(dsock_slow(rc < 0 && errno == ETIMEDOUT)) {
                 errno = ETIMEDOUT; return -1;}
+            if(dsock_slow(rc < 0 && errno == ECANCELED)) {
+                errno = ECANCELED; return -1;}
             dsock_assert(rc == 0);
             continue;
         }
