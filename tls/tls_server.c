@@ -201,7 +201,9 @@ tls_configure_server_ssl(struct tls *ctx, SSL_CTX **ssl_ctx,
 #endif
 
 	if (ctx->config->ecdhecurve == -1) {
+#ifdef  HAVE_SSL_CTX_SET_ECDH_AUTO
 		SSL_CTX_set_ecdh_auto(*ssl_ctx, 1);
+#endif
 	} else if (ctx->config->ecdhecurve != NID_undef) {
 		if ((ecdh_key = EC_KEY_new_by_curve_name(
 		    ctx->config->ecdhecurve)) == NULL) {
